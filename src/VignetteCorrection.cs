@@ -41,6 +41,10 @@ namespace VignetteRemoval
 	/// </summary>
 	public class VignetteCorrection
 	{
+		public VignetteCorrection() { Vignette = null; }
+
+		public VignetteCorrection(List<double> vp) { Vignette = vp; }
+		
 		#region public
 
 		/// <summary>
@@ -80,17 +84,20 @@ namespace VignetteRemoval
 					imageBuffer[j * swd + i] = grayIndexer[j, i];
 
 			// Vignetting correction
-			List<double> vp = new List<double>();
-			if (!VignettingCorrectionUsingRG(imageBuffer, sht, swd, vp))
-				return null;
+			if (Vignette == null)
+			{
+				Vignette = new List<double>();
+				if (!VignettingCorrectionUsingRG(imageBuffer, sht, swd, Vignette))
+					return null;
 
-			int nV = vp.Count;
-			for (int i = 0; i < nV; i++)
-				vp[i] = Math.Exp(vp[i]);
+				int n = Vignette.Count;
+				for (int i = 0; i < n; i++)
+					Vignette[i] = Math.Exp(Vignette[i]);
 
-			double maxVr = vp[0];
-			for (int i = 0; i < nV; i++)
-				vp[i] = vp[i] / maxVr;
+				double maxVr = Vignette[0];
+				for (int i = 0; i < n; i++)
+					Vignette[i] = Vignette[i] / maxVr;
+			}
 
 			int halfHt = (int)Math.Round(ht * 0.5);
 			int halfWd = (int)Math.Round(wd * 0.5);
@@ -101,6 +108,7 @@ namespace VignetteRemoval
 
 			var mat3 = new Mat<Vec3b>(src);
 			var indexer = mat3.GetIndexer();
+			int nV = Vignette.Count;
 
 			for (int j = 0; j < ht; j++)
 			{
@@ -117,16 +125,16 @@ namespace VignetteRemoval
 
 					if (nR == 0)
 					{
-						vValue = vp[0];
+						vValue = Vignette[0];
 					}
 					else if (nR < nV)
 					{
 						double dr = radius - nR;
-						vValue = vp[nR - 1] * (1 - dr) + vp[nR] * dr;
+						vValue = Vignette[nR - 1] * (1 - dr) + Vignette[nR] * dr;
 					}
 					else
 					{
-						vValue = vp[nV - 1];
+						vValue = Vignette[nV - 1];
 					}
 
 					//radius = max(0, min(nV-1, radius) );			
@@ -158,8 +166,8 @@ namespace VignetteRemoval
 					int cx = i - shalfWd;
 					int cy = j - shalfHt;
 					int r = (int)(Math.Sqrt(cx * cx + cy * cy) + 0.5);
-					if (r > 0 && r < nV + 1 && vp[r - 1] < 1)
-						estIndexer[i, j] = (byte)Math.Round(255 * vp[r - 1]);
+					if (r > 0 && r < nV + 1 && Vignette[r - 1] < 1)
+						estIndexer[i, j] = (byte)Math.Round(255 * Vignette[r - 1]);
 					else
 						estIndexer[i, j] = 255;
 				}
@@ -178,6 +186,11 @@ namespace VignetteRemoval
 		/// </summary>
 		public Bitmap VignetteEstimate { get; private set; }
 
+		/// <summary>
+		/// The vignette data 
+		/// </summary>
+		public List<double> Vignette { get; set; }
+		
 		#endregion
 
 		#region private

@@ -34,6 +34,8 @@
             this.myRemoveVignetteButton = new System.Windows.Forms.Button();
             this.myProcessedLabel = new System.Windows.Forms.Label();
             this.myFlipButton = new System.Windows.Forms.Button();
+            this.mySaveDataButton = new System.Windows.Forms.Button();
+            this.myLoadDataButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.myPictureBox)).BeginInit();
             this.SuspendLayout();
             // 
@@ -45,6 +47,7 @@
             this.myPictureBox.Location = new System.Drawing.Point(93, 12);
             this.myPictureBox.Name = "myPictureBox";
             this.myPictureBox.Size = new System.Drawing.Size(710, 378);
+            this.myPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.myPictureBox.TabIndex = 0;
             this.myPictureBox.TabStop = false;
             // 
@@ -101,11 +104,33 @@
             this.myFlipButton.UseVisualStyleBackColor = true;
             this.myFlipButton.Click += new System.EventHandler(this.FlipButton_Click);
             // 
+            // mySaveDataButton
+            // 
+            this.mySaveDataButton.Location = new System.Drawing.Point(12, 226);
+            this.mySaveDataButton.Name = "mySaveDataButton";
+            this.mySaveDataButton.Size = new System.Drawing.Size(75, 41);
+            this.mySaveDataButton.TabIndex = 13;
+            this.mySaveDataButton.Text = "Save Vignette";
+            this.mySaveDataButton.UseVisualStyleBackColor = true;
+            this.mySaveDataButton.Click += new System.EventHandler(this.SaveDataButton_Click);
+            // 
+            // myLoadDataButton
+            // 
+            this.myLoadDataButton.Location = new System.Drawing.Point(12, 179);
+            this.myLoadDataButton.Name = "myLoadDataButton";
+            this.myLoadDataButton.Size = new System.Drawing.Size(75, 41);
+            this.myLoadDataButton.TabIndex = 14;
+            this.myLoadDataButton.Text = "Load Vignette";
+            this.myLoadDataButton.UseVisualStyleBackColor = true;
+            this.myLoadDataButton.Click += new System.EventHandler(this.LoadDataButton_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(815, 439);
+            this.Controls.Add(this.myLoadDataButton);
+            this.Controls.Add(this.mySaveDataButton);
             this.Controls.Add(this.myFlipButton);
             this.Controls.Add(this.myProcessedLabel);
             this.Controls.Add(this.myRemoveVignetteButton);
@@ -127,6 +152,8 @@
         private System.Windows.Forms.Button myRemoveVignetteButton;
         private System.Windows.Forms.Label myProcessedLabel;
         private System.Windows.Forms.Button myFlipButton;
+        private System.Windows.Forms.Button mySaveDataButton;
+        private System.Windows.Forms.Button myLoadDataButton;
     }
 }
 

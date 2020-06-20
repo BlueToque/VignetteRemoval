@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Windows.Forms;
 
 namespace VignetteRemoval
@@ -14,6 +16,7 @@ namespace VignetteRemoval
 
         Image m_original = new Bitmap(1, 1);
         Image m_processed = new Bitmap(1, 1);
+        List<double> m_vignette;
 
         /// <summary>
         /// Load an image
@@ -64,11 +67,12 @@ namespace VignetteRemoval
         /// <param name="e"></param>
         private void RemoveVignetteButton_Click(object sender, EventArgs e)
         {
-            var correction = new VignetteCorrection();
+            var correction = new VignetteCorrection(m_vignette);
             m_processed = correction.Process(m_original);
             myPictureBox.Image = m_processed;
 
             new PictureForm(correction.VignetteEstimate).Show(this);
+            m_vignette = correction.Vignette;
         }
 
         /// <summary>
@@ -88,6 +92,41 @@ namespace VignetteRemoval
                 myPictureBox.Image = m_processed;
                 myProcessedLabel.Text = "Processed";
             }
+        }
+
+        private void LoadDataButton_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog ofd = new OpenFileDialog()
+            {
+                Title = "Load Vignette",
+                Filter = "Dat File|*.dat"
+            })
+            {
+                if (ofd.ShowDialog(this) != DialogResult.OK) return;
+
+                m_vignette = new List<double>();
+                string line;
+                using (StreamReader file = new StreamReader(ofd.FileName))
+                    while ((line = file.ReadLine()) != null)
+                        m_vignette.Add(double.Parse(line));
+            }
+        }
+
+        private void SaveDataButton_Click(object sender, EventArgs e)
+        {
+            using (SaveFileDialog sfd = new SaveFileDialog()
+            {
+                Title = "Save Vignette",
+                Filter = "Dat File|*.dat"
+            })
+            {
+                if (sfd.ShowDialog(this) != DialogResult.OK) return;
+                using (StreamWriter file = new StreamWriter(sfd.FileName))
+                    foreach (var value in m_vignette)
+                        file.WriteLine(value);
+            }
+
+
         }
     }
 }
