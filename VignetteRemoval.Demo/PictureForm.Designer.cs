@@ -1,4 +1,4 @@
-﻿namespace VignetteRemoval
+﻿namespace VignetteRemoval.Demo
 {
     partial class PictureForm
     {

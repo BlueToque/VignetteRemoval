@@ -5,8 +5,8 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("VignetteRemoval")]
-[assembly: AssemblyDescription("Implementations of various vignette removal algorithms in C#")]
+[assembly: AssemblyTitle("VignetteRemoval.Demo")]
+[assembly: AssemblyDescription("Demo of various vignette removal algorithms")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("BlueToque Software")]
 [assembly: AssemblyProduct("VignetteRemoval")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("66401c82-77b3-4cef-ab37-8975c55d03f1")]
+[assembly: Guid("4864b10e-854c-4d2d-88a6-756bca14d625")]
 
 // Version information for an assembly consists of the following four values:
 //

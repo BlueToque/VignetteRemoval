@@ -1,4 +1,4 @@
-﻿namespace VignetteRemoval
+﻿namespace VignetteRemoval.Demo
 {
     partial class MainForm
     {
@@ -36,6 +36,8 @@
             this.myFlipButton = new System.Windows.Forms.Button();
             this.mySaveDataButton = new System.Windows.Forms.Button();
             this.myLoadDataButton = new System.Windows.Forms.Button();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.myPictureBox)).BeginInit();
             this.SuspendLayout();
             // 
@@ -73,7 +75,7 @@
             // 
             // myRemoveVignetteButton
             // 
-            this.myRemoveVignetteButton.Location = new System.Drawing.Point(12, 70);
+            this.myRemoveVignetteButton.Location = new System.Drawing.Point(11, 113);
             this.myRemoveVignetteButton.Name = "myRemoveVignetteButton";
             this.myRemoveVignetteButton.Size = new System.Drawing.Size(75, 41);
             this.myRemoveVignetteButton.TabIndex = 3;
@@ -96,7 +98,7 @@
             // 
             // myFlipButton
             // 
-            this.myFlipButton.Location = new System.Drawing.Point(12, 117);
+            this.myFlipButton.Location = new System.Drawing.Point(11, 160);
             this.myFlipButton.Name = "myFlipButton";
             this.myFlipButton.Size = new System.Drawing.Size(75, 41);
             this.myFlipButton.TabIndex = 12;
@@ -106,7 +108,7 @@
             // 
             // mySaveDataButton
             // 
-            this.mySaveDataButton.Location = new System.Drawing.Point(12, 226);
+            this.mySaveDataButton.Location = new System.Drawing.Point(11, 254);
             this.mySaveDataButton.Name = "mySaveDataButton";
             this.mySaveDataButton.Size = new System.Drawing.Size(75, 41);
             this.mySaveDataButton.TabIndex = 13;
@@ -116,7 +118,7 @@
             // 
             // myLoadDataButton
             // 
-            this.myLoadDataButton.Location = new System.Drawing.Point(12, 179);
+            this.myLoadDataButton.Location = new System.Drawing.Point(11, 207);
             this.myLoadDataButton.Name = "myLoadDataButton";
             this.myLoadDataButton.Size = new System.Drawing.Size(75, 41);
             this.myLoadDataButton.TabIndex = 14;
@@ -124,11 +126,35 @@
             this.myLoadDataButton.UseVisualStyleBackColor = true;
             this.myLoadDataButton.Click += new System.EventHandler(this.LoadDataButton_Click);
             // 
+            // comboBox1
+            // 
+            this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Items.AddRange(new object[] {
+            "ASIV",
+            "LIE",
+            "HILL"});
+            this.comboBox1.Location = new System.Drawing.Point(11, 86);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(74, 21);
+            this.comboBox1.TabIndex = 15;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(12, 67);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(53, 13);
+            this.label1.TabIndex = 16;
+            this.label1.Text = "Algortithm";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(815, 439);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.myLoadDataButton);
             this.Controls.Add(this.mySaveDataButton);
             this.Controls.Add(this.myFlipButton);
@@ -141,6 +167,7 @@
             this.Text = "Vignette Removal";
             ((System.ComponentModel.ISupportInitialize)(this.myPictureBox)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -154,6 +181,8 @@
         private System.Windows.Forms.Button myFlipButton;
         private System.Windows.Forms.Button mySaveDataButton;
         private System.Windows.Forms.Button myLoadDataButton;
+        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.Label label1;
     }
 }
 

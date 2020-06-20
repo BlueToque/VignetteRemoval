@@ -32,6 +32,8 @@ using CVSize = OpenCvSharp.Size;
 namespace VignetteRemoval
 {
 	/// <summary>
+	/// Adaptive Segmentation Image Variation Vignette Correction
+	/// 
 	/// This code is a port of the C++ version of the following
 	/// https://github.com/GUOYI1/Vignetting_corrector
 	/// 
@@ -39,11 +41,11 @@ namespace VignetteRemoval
 	/// https://www.microsoft.com/en-us/research/wp-content/uploads/2009/12/pami09zheng.pdf
 	/// 
 	/// </summary>
-	public class VignetteCorrection
+	public class ASIV_VignetteCorrection
 	{
-		public VignetteCorrection() { Vignette = null; }
+		public ASIV_VignetteCorrection() { Vignette = null; }
 
-		public VignetteCorrection(List<double> vp) { Vignette = vp; }
+		public ASIV_VignetteCorrection(List<double> vp) { Vignette = vp; }
 		
 		#region public
 
@@ -246,7 +248,7 @@ namespace VignetteRemoval
 					int cy = j - halfHt;
 
 					// calculate the radius
-					int radius = (int)(Math.Sqrt(cx * cx + cy * cy) + 0.5);
+					//int radius = (int)(Math.Sqrt(cx * cx + cy * cy) + 0.5);
 
 					// calculate the gradient
 					double dx = Math.Log(pImage[j * wd + i] + shift) - Math.Log(pImage[j * wd + i - 1] + shift);

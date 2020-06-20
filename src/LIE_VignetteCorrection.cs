@@ -6,31 +6,35 @@ using System.Drawing;
 namespace VignetteRemoval
 {
     /// <summary>
+    /// Log Intensity Entropy Vignette Correction
+    /// 
     /// C# implementation of "Revisiting Image Vignetting Correction by Constrained Minimization of log-Intensity Entropy".
-    /// based on the c++ implementation: https://github.com/HJCYFY/Vignetting-Correction
+    /// https://www.researchgate.net/publication/300786398_Revisiting_Image_Vignetting_Correction_by_Constrained_Minimization_of_Log-Intensity_Entropy
+    /// 
+    /// based on the c++ implementation: 
+    /// https://github.com/HJCYFY/Vignetting-Correction
     /// </summary>
-    public class VignetteCorrection2
+    public class LIE_VignetteCorrection
     {
         public Image Process(Image image)
         {
             Mat img = BitmapConverter.ToMat((Bitmap)image);
-            //Mat dst;
 
-            img = img.CvtColor(ColorConversionCodes.BGR2GRAY);
-            Mat aa = img.Clone();
+            Mat imgGray = img.CvtColor(ColorConversionCodes.BGR2GRAY);
+            
+            Mat<byte> aa = new Mat<byte>(imgGray);
 
-            // imshow("raw",aa);
             float a = 0, b = 0, c = 0;
             float a_min = 0, b_min = 0, c_min = 0;
             float delta = 8;
-            float Hmin = calH(a, b, c, img);
+            float Hmin = CalH(a, b, c, imgGray);
 
-            while (delta > 1 / 256)
+            while (delta > (1 / 256.0f))
             {
                 float a_temp = a + delta;
-                if (check(a_temp, b, c))
+                if (Check(a_temp, b, c))
                 {
-                    float H = calH(a_temp, b, c, img);
+                    float H = CalH(a_temp, b, c, imgGray);
                     if (Hmin > H)
                     {
                         a_min = a_temp;
@@ -40,9 +44,9 @@ namespace VignetteRemoval
                     }
                 }
                 a_temp = a - delta;
-                if (check(a_temp, b, c))
+                if (Check(a_temp, b, c))
                 {
-                    float H = calH(a_temp, b, c, img);
+                    float H = CalH(a_temp, b, c, imgGray);
                     if (Hmin > H)
                     {
                         a_min = a_temp;
@@ -52,9 +56,9 @@ namespace VignetteRemoval
                     }
                 }
                 float b_temp = b + delta;
-                if (check(a, b_temp, c))
+                if (Check(a, b_temp, c))
                 {
-                    float H = calH(a, b_temp, c, img);
+                    float H = CalH(a, b_temp, c, imgGray);
                     if (Hmin > H)
                     {
                         a_min = a;
@@ -64,9 +68,9 @@ namespace VignetteRemoval
                     }
                 }
                 b_temp = b - delta;
-                if (check(a, b_temp, c))
+                if (Check(a, b_temp, c))
                 {
-                    float H = calH(a, b_temp, c, img);
+                    float H = CalH(a, b_temp, c, imgGray);
                     if (Hmin > H)
                     {
                         a_min = a;
@@ -76,9 +80,9 @@ namespace VignetteRemoval
                     }
                 }
                 float c_temp = c + delta;
-                if (check(a, b, c_temp))
+                if (Check(a, b, c_temp))
                 {
-                    float H = calH(a, b, c_temp, img);
+                    float H = CalH(a, b, c_temp, imgGray);
                     if (Hmin > H)
                     {
                         a_min = a;
@@ -88,9 +92,9 @@ namespace VignetteRemoval
                     }
                 }
                 c_temp = c - delta;
-                if (check(a, b, c_temp))
+                if (Check(a, b, c_temp))
                 {
-                    float H = calH(a, b, c_temp, img);
+                    float H = CalH(a, b, c_temp, imgGray);
                     if (Hmin > H)
                     {
                         a_min = a;
@@ -99,22 +103,20 @@ namespace VignetteRemoval
                         Hmin = H;
                     }
                 }
-                delta = delta / 2.0f;
+                delta /= 2.0f;
             }
 
-            // cout<<"***************"<<endl;
-            //cout << "amin " << a_min << "bmin " << b_min << "cmin " << c_min << endl;
-            Mat result = new Mat(img.Size(), MatType.CV_8UC1);
             int rows = img.Rows;
             int cols = img.Cols;
+            Mat<byte> result = new Mat<byte>(rows, cols);
             float c_x = cols / 2.0f;
             float c_y = rows / 2.0f;
             float d = (float)Math.Sqrt(c_x * c_x + c_y * c_y);
 
+            var aaIndexer = aa.GetIndexer();
+            var resultIndexer = result.GetIndexer();
             for (int row = 0; row < rows; ++row)
             {
-                var data = aa.Row(row).GetGenericIndexer<byte>();//.ptr<uchar>(row);
-                var value = result.Row(row).GetGenericIndexer<byte>();
                 for (int col = 0; col < cols; ++col)
                 {
                     float r = (float)Math.Sqrt((row - c_y) * (row - c_y) + (col - c_x) * (col - c_x)) / d;
@@ -122,21 +124,21 @@ namespace VignetteRemoval
                     float r4 = r2 * r2;
                     float r6 = r2 * r2 * r2;
                     float g = 1 + a_min * r2 + b_min * r4 + c_min * r6;
+                    
                     // this will cause overflow 
                     // ToDo: The image should be normalized to the original brightness
-                    value[col] = (byte)Math.Round(data[col] * g);
-                    if (value[col] > 255)
-                        value[col] = 255;
-                    else if (value[col] < 0)
-                        value[col] = 0;
+                    resultIndexer[row, col] = (byte)Math.Round(aaIndexer[row,col] * g);
+                    if (resultIndexer[row, col] > 255)
+                        resultIndexer[row, col] = 255;
+                    else if (resultIndexer[row, col] < 0)
+                        resultIndexer[row, col] = 0;
                 }
             }
-
+            aa.Release();
             return result.ToBitmap();
-
         }
 
-        bool check(float a, float b, float c)
+        bool Check(float a, float b, float c)
         {
             if ((a > 0) && (b == 0) && (c == 0))
                 return true;
@@ -161,20 +163,23 @@ namespace VignetteRemoval
             return false;
         }
 
-        float calH(float a, float b, float c, Mat GrayImg)
+        float CalH(float a, float b, float c, Mat grayImg)
         {
-            Mat GrayFloatImg = new Mat(GrayImg.Size(), MatType.CV_32FC1);
-            int rows = GrayImg.Rows;
-            int cols = GrayImg.Cols;
+            Mat<float> grayFloatImg = new Mat<float>(grayImg.Rows,grayImg.Cols);
+            int rows = grayImg.Rows;
+            int cols = grayImg.Cols;
 
             float c_x = (float)(cols / 2.0);
             float c_y = (float)(rows / 2.0);
             float d = (float)Math.Sqrt(c_x * c_x + c_y * c_y);
 
+            var grayIndexer = new Mat<byte>( grayImg).GetIndexer();
+            var grayFloatIndexer = grayFloatImg.GetIndexer();
+
             for (int row = 0; row < rows; ++row)
             {
-                var data = GrayImg.Row(row).GetGenericIndexer<byte>();
-                var value = GrayFloatImg.Row(row).GetGenericIndexer<float>();
+                //var data = grayImg.Row(row).GetGenericIndexer<byte>();
+                //var value = grayFloatImg.Row(row).GetGenericIndexer<float>();
                 for (int col = 0; col < cols; ++col)
                 {
                     float r = (float)Math.Sqrt((row - c_y) * (row - c_y) + (col - c_x) * (col - c_x)) / d;
@@ -182,45 +187,44 @@ namespace VignetteRemoval
                     float r4 = r2 * r2;
                     float r6 = r2 * r2 * r2;
                     float g = 1 + a * r2 + b * r4 + c * r6;
-                    value[col] = data[col] * g;
+                    grayFloatIndexer[row, col] = grayIndexer[row, col] * g;
+                    //value[col] = data[col] * g;
                 }
             }
-            // cout<<"GrayFloatImg "<<GrayFloatImg<<endl;
 
-            Mat logImg = new Mat(GrayImg.Size(), MatType.CV_32FC1);
+            var logImg = new Mat<float>(rows,cols);
+            var logIndexer = logImg.GetIndexer();
             for (int row = 0; row < rows; ++row)
-            {
-                var data = GrayFloatImg.Row(row).GetGenericIndexer<float>();
-                var value = logImg.Row(row).GetGenericIndexer<float>();
                 for (int col = 0; col < cols; ++col)
-                    value[col] = (float)(255 * Math.Log(1 + data[col]) / 8);
-            }
-            // cout<<"logImg "<<logImg<<endl;
+                    logIndexer[row,col] = (float)(255 * Math.Log(1 + grayFloatIndexer[row, col]) / 8);
+
             float[] histogram = new float[256];
-            //memset(histogram, 0, sizeof(float) * 256);
             for (int row = 0; row < rows; ++row)
             {
-                var value = logImg.Row(row).GetGenericIndexer<float>();
                 for (int col = 0; col < cols; ++col)
                 {
-                    int k_d = (int)Math.Floor(value[col]);
-                    int k_u = (int)Math.Ceiling(value[col]);
-                    histogram[k_d] += (1 + k_d - value[col]);
-                    histogram[k_u] += (k_u - value[col]);
+                    int k_d = (int)Math.Floor(logIndexer[row,col]);
+                    int k_u = (int)Math.Ceiling(logIndexer[row, col]);
+                    histogram[k_d] += (1 + k_d - logIndexer[row, col]);
+                    histogram[k_u] += (k_u - logIndexer[row, col]);
                 }
             }
 
-            float[] TempHist = new float[256 + 2 * 4];            //    SmoothRadius = 4
-            TempHist[0] = histogram[4]; TempHist[1] = histogram[3];
-            TempHist[2] = histogram[2]; TempHist[3] = histogram[1];
-            TempHist[260] = histogram[254]; TempHist[261] = histogram[253];
-            TempHist[262] = histogram[252]; TempHist[263] = histogram[251];
-            Array.Copy(TempHist, 4, histogram, 0, 256);
+            float[] tempHist = new float[256 + 2 * 4];            //    SmoothRadius = 4
+            tempHist[0] = histogram[4]; 
+            tempHist[1] = histogram[3];
+            tempHist[2] = histogram[2]; 
+            tempHist[3] = histogram[1];
+            tempHist[260] = histogram[254]; 
+            tempHist[261] = histogram[253];
+            tempHist[262] = histogram[252]; 
+            tempHist[263] = histogram[251];
+            Array.Copy(histogram, 0, tempHist, 4, 256);
             //memcpy(TempHist + 4, histogram, 256 * sizeof(float));
 
             //  smooth
             for (int X = 0; X < 256; X++)
-                histogram[X] = (TempHist[X] + 2 * TempHist[X + 1] + 3 * TempHist[X + 2] + 4 * TempHist[X + 3] + 5 * TempHist[X + 4] + 4 * TempHist[X + 5] + 3 * TempHist[X + 6] + 2 * TempHist[X + 7]) + TempHist[X + 8] / 25.0f;
+                histogram[X] = (tempHist[X] + 2 * tempHist[X + 1] + 3 * tempHist[X + 2] + 4 * tempHist[X + 3] + 5 * tempHist[X + 4] + 4 * tempHist[X + 5] + 3 * tempHist[X + 6] + 2 * tempHist[X + 7]) + tempHist[X + 8] / 25.0f;
 
             float sum = 0;
             for (int i = 0; i < 256; ++i)
@@ -232,6 +236,10 @@ namespace VignetteRemoval
                 if (pk != 0)
                     H += (float)(pk * Math.Log(pk));
             }
+
+            grayFloatImg.Release();
+            logImg.Release();
+
             return -H;
         }
     }
