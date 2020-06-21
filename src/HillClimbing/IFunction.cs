@@ -2,6 +2,7 @@
 {
     /// <summary>
     /// Optimization function interface.
+    /// based on code from https://github.com/dajuric/dot-devignetting
     /// </summary>
     /// <typeparam name="TData">data type.</typeparam>
     public interface IFunction<TData>

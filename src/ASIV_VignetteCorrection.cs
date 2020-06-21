@@ -43,18 +43,18 @@ namespace VignetteRemoval
 	/// </summary>
 	public class ASIV_VignetteCorrection
 	{
-		public ASIV_VignetteCorrection() { Vignette = null; }
+        public ASIV_VignetteCorrection() => Vignette = null;
 
-		public ASIV_VignetteCorrection(List<double> vp) { Vignette = vp; }
-		
-		#region public
+        public ASIV_VignetteCorrection(List<double> vp) => Vignette = vp;
 
-		/// <summary>
-		/// Process the image
-		/// </summary>
-		/// <param name="image"></param>
-		/// <returns></returns>
-		public Image Process(Image image)
+        #region public
+
+        /// <summary>
+        /// Process the image
+        /// </summary>
+        /// <param name="image"></param>
+        /// <returns></returns>
+        public Image Process(Image image)
 		{
 			// convert to OpenCV 
 			var src = BitmapConverter.ToMat((Bitmap)image);

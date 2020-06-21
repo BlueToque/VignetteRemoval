@@ -135,7 +135,7 @@ namespace VignetteRemoval.Demo
                 case "LIE":  m_processed = new LIE_VignetteCorrection().Process(m_original); break;
                 case "HILL":
                     {
-                        var correction = new Hill_VignetteCorrection();
+                        var correction = new CMLIE_VignetteCorrection();
                         m_processed = correction.Process(m_original);
                         new PictureForm(correction.VignetteEstimate).Show(this);
                     }

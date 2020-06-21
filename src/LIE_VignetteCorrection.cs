@@ -1,4 +1,27 @@
-﻿using OpenCvSharp;
+﻿/*
+	MIT License
+
+	Copyright (c) 2020 BlueToque Software
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+*/
+using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using System;
 using System.Drawing;
@@ -21,7 +44,7 @@ namespace VignetteRemoval
             Mat img = BitmapConverter.ToMat((Bitmap)image);
 
             Mat imgGray = img.CvtColor(ColorConversionCodes.BGR2GRAY);
-            
+
             Mat<byte> aa = new Mat<byte>(imgGray);
 
             float a = 0, b = 0, c = 0;
@@ -106,9 +129,29 @@ namespace VignetteRemoval
                 delta /= 2.0f;
             }
 
-            int rows = img.Rows;
-            int cols = img.Cols;
+            // convert original to LAB colour?
+            var lab = img.CvtColor(ColorConversionCodes.BGR2Lab);
+
+            // get the L value as a mat
+            Mat[] lab_planes = lab.Split();
+
+            Mat<byte> result = ApplyFunction(new Mat<byte>(lab_planes[0]), a_min, b_min, c_min);
+
+            result.CopyTo(lab_planes[0]);
+            Cv2.Merge(lab_planes, lab);
+
+            Mat rgb = lab.CvtColor(ColorConversionCodes.Lab2BGR);
+
+            aa.Release();
+            return rgb.ToBitmap();
+        }
+
+        private static Mat<byte> ApplyFunction(Mat<byte> aa, float a_min, float b_min, float c_min)
+        {
+            int rows = aa.Rows;
+            int cols = aa.Cols;
             Mat<byte> result = new Mat<byte>(rows, cols);
+
             float c_x = cols / 2.0f;
             float c_y = rows / 2.0f;
             float d = (float)Math.Sqrt(c_x * c_x + c_y * c_y);
@@ -124,18 +167,18 @@ namespace VignetteRemoval
                     float r4 = r2 * r2;
                     float r6 = r2 * r2 * r2;
                     float g = 1 + a_min * r2 + b_min * r4 + c_min * r6;
-                    
+
                     // this will cause overflow 
                     // ToDo: The image should be normalized to the original brightness
-                    resultIndexer[row, col] = (byte)Math.Round(aaIndexer[row,col] * g);
+                    resultIndexer[row, col] = (byte)Math.Round(aaIndexer[row, col] * g);
                     if (resultIndexer[row, col] > 255)
                         resultIndexer[row, col] = 255;
                     else if (resultIndexer[row, col] < 0)
                         resultIndexer[row, col] = 0;
                 }
             }
-            aa.Release();
-            return result.ToBitmap();
+
+            return result;
         }
 
         bool Check(float a, float b, float c)

@@ -1,26 +1,16 @@
-﻿using System;
+﻿using OpenCvSharp;
+using System;
 
 namespace VignetteRemoval.HillClimbing
 {
     /// <summary>
     /// Hill-climbing algorithm.
+    /// based on code from https://github.com/dajuric/dot-devignetting
     /// </summary>
     /// <typeparam name="TFunction">Optimization function type.</typeparam>
     /// <typeparam name="TData">Data type for the provider function.</typeparam>
-    public class HillClimbingOptimization<TFunction, TData> where TFunction : IFunction<TData>, IParameterIndexer
+    public class HillClimbingOptimization//<TFunction, TData> where TFunction : IFunction<TData>, IParameterIndexer
     {
-        float[] m_step;
-        int m_prevIterId;
-        int m_delta;
-        float m_bestValue;
-
-        int m_updateIndex;
-        float m_updateParam;
-        int m_maxParamIndex;
-        int m_currentParamIndex;
-
-        bool m_isImproved;
-
         /// <summary>
         /// Creates new hill-climbing algorithm.
         /// </summary>
@@ -38,10 +28,22 @@ namespace VignetteRemoval.HillClimbing
             EndParamIdx = endParamIdx;
         }
 
+        float[] m_step;
+        int m_prevIterId;
+        int m_delta;
+        float m_bestValue;
+
+        int m_updateIndex;
+        float m_updateParam;
+        int m_maxParamIndex;
+        int m_currentParamIndex;
+
+        bool m_isImproved;
+
         /// <summary>
         /// Initializes the optimization algorithm by performing initial function evaluation to set the initial state.
         /// </summary>
-        public void Initialize(TFunction initialFunction, TData data)
+        public void Initialize(Function initialFunction, Mat<Vec3b> data)
         {
             Function = initialFunction;
 
@@ -59,7 +61,8 @@ namespace VignetteRemoval.HillClimbing
             IsDone = false;
         }
 
-        private bool MinimizeSingleStepDeltaOnly1D(TData data)
+
+        private bool MinimizeSingleStepDeltaOnly1D(Mat<Vec3b> data)
         {
             //----- for delta = [-1, +1] -----
             if (m_delta <= 1)
@@ -109,7 +112,7 @@ namespace VignetteRemoval.HillClimbing
         /// True if the optimization has finished, false otherwise.
         /// <para>See <see cref="IsDone"/>.</para>
         /// </returns>
-        public bool MinimizeSingleStep(TData data)
+        public bool MinimizeSingleStep(Mat<Vec3b> data)
         {
             //incremental optimization by increasing polynomial degree
             //----- for maxParamIdx = 1: length(initialFuncParams) -----
@@ -162,28 +165,22 @@ namespace VignetteRemoval.HillClimbing
             return true;
         }
 
-        /// <summary>
-        /// Gets the initial step size.
-        /// </summary>
+        /// <summary> Initial step size. </summary>
         public float[] InitialStep { get; private set; }
 
-        /// <summary>
-        /// Gets the step reduction factor.
-        /// </summary>
+        /// <summary> Step reduction factor. </summary>
         public float[] StepReduction { get; private set; }
 
-        /// <summary>
-        /// Gets the final step size.
-        /// </summary>
+        /// <summary> Final step size. </summary>
         public float[] FinalStep { get; private set; }
 
         /// <summary>
-        /// Gets the index for the starting optimizing parameter.
+        /// index for the starting optimizing parameter.
         /// </summary>
         public int StartParamIdx { get; private set; }
 
         /// <summary>
-        /// Gets the index for the last parameter to optimize.
+        /// index for the last parameter to optimize.
         /// </summary>
         public int EndParamIdx { get; private set; }
 
@@ -192,9 +189,7 @@ namespace VignetteRemoval.HillClimbing
         /// </summary>
         public bool IsDone { get; private set; }
 
-        /// <summary>
-        /// Gets the current function state.
-        /// </summary>
-        public TFunction Function { get; private set; }
+        /// <summary> current function state. </summary>
+        public Function Function { get; private set; }
     }
 }

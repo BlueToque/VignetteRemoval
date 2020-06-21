@@ -9,8 +9,9 @@ namespace VignetteRemoval.HillClimbing
 {
     /// <summary>
     /// De-vignetting polynomial function (1 + a*r^2 + b*r^4 + c*r^6) where r is radius [0..1].
+    /// based on code from https://github.com/dajuric/dot-devignetting
     /// </summary>
-    class DevignettingFunction : IFunction<Mat<Vec3b>>, IParameterIndexer
+    public class Function //: IFunction<Mat<Vec3b>>, IParameterIndexer
     {
         /// <summary> Gets parameter count. </summary>
         public static readonly int PARAMETER_COUNT = 3 /*poly params*/ + 2 /*spatial offset*/;
@@ -20,7 +21,7 @@ namespace VignetteRemoval.HillClimbing
         const int LOG2_256 = 8;
 
         /// <summary> Gets empty de-vignetting function. </summary>
-        public static readonly DevignettingFunction Empty = new DevignettingFunction { A = 0, B = 0, C = 0, DeltaX = 0, DeltaY = 0 };
+        public static readonly Function Empty = new Function { A = 0, B = 0, C = 0, DeltaX = 0, DeltaY = 0 };
 
         /// <summary>
         /// The maximum brightness multiplication (the factor which dictates how much pixels can be changed).
@@ -33,19 +34,19 @@ namespace VignetteRemoval.HillClimbing
         public float A { get; set; }
 
         /// <summary>
-        /// Gets or sets the 'b' factor for the polynomial: (1 + a*r^2 + b*r^4 + c*r^6).
+        /// 'b' factor for the polynomial: (1 + a*r^2 + b*r^4 + c*r^6).
         /// </summary>
         public float B { get; set; }
 
         /// <summary>
-        /// Gets or sets the 'c' factor for the polynomial: (1 + a*r^2 + b*r^4 + c*r^6).
+        /// 'c' factor for the polynomial: (1 + a*r^2 + b*r^4 + c*r^6).
         /// </summary>
         public float C { get; set; }
 
-        /// <summary> Gets or sets horizontal offset from the image center. </summary>
+        /// <summary> horizontal offset from the image center. </summary>
         public float DeltaX { get; set; }
 
-        /// <summary> Gets or sets vertical offset from the image center. </summary>
+        /// <summary> vertical offset from the image center. </summary>
         public float DeltaY { get; set; }
 
         #region Utility functions
@@ -65,7 +66,7 @@ namespace VignetteRemoval.HillClimbing
             return log2;
         }
 
-        static float GetGainAt(DevignettingFunction f, int x, int y, int width, int height)
+        static float GetGainAt(Function f, int x, int y, int width, int height)
         {
             float centerX = width / 2 + f.DeltaX;
             float centerY = height / 2 + f.DeltaY;
