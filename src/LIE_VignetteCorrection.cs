@@ -25,6 +25,7 @@ using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using System;
 using System.Drawing;
+using CVSize = OpenCvSharp.Size;
 
 namespace VignetteRemoval
 {
@@ -143,8 +144,17 @@ namespace VignetteRemoval
             Mat rgb = lab.CvtColor(ColorConversionCodes.Lab2BGR);
 
             aa.Release();
+
+            Mat<byte> grey = new Mat<byte>(img.Width, img.Height);
+            grey.SetTo(128);
+            grey = ApplyFunction(grey, a_min, b_min, c_min);
+           
+            VignetteEstimate = grey.Resize(new CVSize(512, 512)).ToBitmap();
+
             return rgb.ToBitmap();
         }
+
+        public Image VignetteEstimate { get; private set; }
 
         private static Mat<byte> ApplyFunction(Mat<byte> aa, float a_min, float b_min, float c_min)
         {
